@@ -10,12 +10,13 @@ import enum
 import itertools as it
 from typing import TYPE_CHECKING
 
+from vec2_math import vadd, vsub
+
 from offset_poly.offset_corner import miter_corner
 from offset_poly.prepare_poly import (
     align_closing_points,
     remove_coincident_adjacent_points,
 )
-from offset_poly.vec2_math import vadd, vsub
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Sequence

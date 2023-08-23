@@ -8,11 +8,15 @@ from __future__ import annotations
 
 import math
 
-from offset_poly.vec2_math import _Vec2, get_signed_angle, move_along, qrotate, vsub
+import vec2_math as v2
 
 
 def miter_corner(
-    pnt_a: _Vec2, pnt_b: _Vec2, pnt_c: _Vec2, gap_1: float, gap_2: float | None = None
+    pnt_a: tuple[float, float],
+    pnt_b: tuple[float, float],
+    pnt_c: tuple[float, float],
+    gap_1: float,
+    gap_2: float | None = None,
 ) -> tuple[float, float]:
     """Offset a corner (to the right) defined by three points.
 
@@ -27,22 +31,22 @@ def miter_corner(
     if gap_2 is None:
         gap_2 = gap_1
 
-    if gap_1 is 0 and gap_2 is 0:
+    if gap_1 == 0 and gap_2 == 0:
         return pnt_b
 
-    vec12 = vsub(pnt_b, pnt_a)
-    vec23 = vsub(pnt_c, pnt_b)
-    angle = get_signed_angle(vec12, vec23)
+    vec12 = v2.vsub(pnt_b, pnt_a)
+    vec23 = v2.vsub(pnt_c, pnt_b)
+    angle = v2.get_signed_angle(vec12, vec23)
 
     if math.isclose(angle, 0, abs_tol=1e-6):
         if gap_1 != gap_2:
             except_msg = "gap_1 and gap_2 must be equal when angle is zero"
             raise ValueError(except_msg)
-        return move_along(pnt_b, qrotate(vec12, 1), gap_1)
+        return v2.move_along(pnt_b, v2.qrotate(vec12, 1), gap_1)
 
     sin_angle = math.sin(angle)
     if math.isclose(sin_angle, 0, abs_tol=1e-6):
         return math.nan, math.nan
 
-    intermediate = move_along(pnt_b, vec23, gap_1 / sin_angle)
-    return move_along(intermediate, vec12, -(gap_2 or 0) / sin_angle)
+    intermediate = v2.move_along(pnt_b, vec23, gap_1 / sin_angle)
+    return v2.move_along(intermediate, vec12, -(gap_2 or 0) / sin_angle)

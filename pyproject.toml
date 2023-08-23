@@ -8,12 +8,43 @@ packages = [{include = "offset_poly"}]
 
 [tool.poetry.dependencies]
 python = "^3.9"
+vec2-math = "^0.1.0"
 
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.4.0"
 pre-commit = "^3.3.3"
+commitizen = "^3.6.0"
+
+[tool.commitizen]
+name = "cz_conventional_commits"
+version = "0.1.0"
+tag_format = "$version"
+major-version-zero = true
+version_files = [
+    "pyproject.toml:^version"
+]
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.pyright]
+include = ["src"]
+exclude = ["**/__pycache__.py"]
+
+pythonVersion = "3.9"
+pythonPlatform = "Any"
+
+typeCheckingMode = "strict"
+reportShadowedImports = true
+reportCallInDefaultInitializer = true
+reportImplicitStringConcatenation = true
+# reportMissingSuperCall = true
+reportPropertyTypeMismatch = true
+reportUninitializedInstanceVariable = true
+reportUnnecessaryTypeIgnoreComment = true
+reportUnusedCallResult = true
+
+venvPath = "C:\\Users\\shaya\\AppData\\Local\\pypoetry\\Cache\\virtualenvs"
+venv = "C:\\Users\\shaya\\AppData\\Local\\pypoetry\\Cache\\virtualenvs\\offset-poly-qv4vHTzb-py3.11"
