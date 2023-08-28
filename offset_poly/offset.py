@@ -12,7 +12,7 @@ from typing import TYPE_CHECKING
 
 from vec2_math import vadd, vsub
 
-from offset_poly.offset_corner import miter_corner
+from offset_poly.offset_corner import GapCorner, gap_corner
 from offset_poly.prepare_poly import (
     align_closing_points,
     remove_coincident_adjacent_points,
@@ -54,17 +54,17 @@ def _anchor_polyline(polyline: Sequence[_Vec2]) -> list[_Vec2]:
     :param polyline: polyline
     :return: polyline with extended edges at the beginning and end
 
-        A --- B
-              |
-              C
+        A — B
+            |
+            C
 
     becomes
 
-    A` --- A --- B
-                 |
-                 C
-                 |
-                 C`
+    A`— A — B
+            |
+            C
+            |
+            C`
 
     From A, B, C to (A + (A - B)), A, B, C, (C - (B - C))
     """
@@ -77,7 +77,7 @@ def offset_poly_per_vert(
     polyline: Sequence[_Vec2],
     vert_offsets: Iterable[tuple[float, float]],
     poly_type: PolyType,
-) -> list[_Vec2]:
+) -> list[GapCorner]:
     """Offset each corner of a polyline or polygon.
 
     :param polyline: polyline
@@ -110,17 +110,17 @@ def offset_poly_per_vert(
         msg = "poly_type must be PolyType.POLYGON or PolyType.POLYLINE"
         raise ValueError(msg)
 
-    offset_points: list[_Vec2] = []
+    offset_points: list[GapCorner] = []
     for pnt_a, pnt_b, pnt_c in zip(points, points[1:], points[2:]):
         gap_1, gap_2 = next(gaps)
-        offset_points.append(miter_corner(pnt_a, pnt_b, pnt_c, gap_1, gap_2))
+        offset_points.append(gap_corner(pnt_a, pnt_b, pnt_c, gap_1, gap_2))
 
     return align_closing_points(polyline, offset_points)
 
 
 def offset_poly_per_edge(
     polyline: Sequence[_Vec2], edge_offsets: Iterable[float], poly_type: PolyType
-) -> list[_Vec2]:
+) -> list[GapCorner]:
     """Offset each edge of a polyline or polygon.
 
     :param polyline: polyline
@@ -129,7 +129,7 @@ def offset_poly_per_edge(
     :return: polyline offset by edge_offsets
 
     This function allows each edge of a polygon or polyline to be offset by
-    a different amount. You will end up with a ValueError in miter_corner
+    a different amount. You will end up with a ValueError in gap_corner
     if you try to offset consecutive, parallel edges by different amounts.
     """
     prev_edges, next_edges = it.tee(edge_offsets, 2)
@@ -137,7 +137,7 @@ def offset_poly_per_edge(
     return offset_poly_per_vert(polyline, zip(prev_edges, next_edges), poly_type)
 
 
-def offset_polyline(polyline: Sequence[_Vec2], offset: float) -> list[_Vec2]:
+def offset_polyline(polyline: Sequence[_Vec2], offset: float) -> list[GapCorner]:
     """Offset polygon edges (to the left) by a constant amount.
 
     :param polyline: polyline
@@ -147,7 +147,7 @@ def offset_polyline(polyline: Sequence[_Vec2], offset: float) -> list[_Vec2]:
     return offset_poly_per_edge(polyline, it.cycle([offset]), PolyType.POLYLINE)
 
 
-def offset_polygon(polyline: Sequence[_Vec2], offset: float) -> list[_Vec2]:
+def offset_polygon(polyline: Sequence[_Vec2], offset: float) -> list[GapCorner]:
     """Offset polygon edges (to the left) by a constant amount.
 
     :param polyline: polyline

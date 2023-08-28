@@ -7,7 +7,7 @@
 from __future__ import annotations
 
 import itertools as it
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, TypeVar
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -28,9 +28,10 @@ def remove_coincident_adjacent_points(polyline: Sequence[_Vec2]) -> list[_Vec2]:
     return new_points
 
 
-def align_closing_points(
-    polyline_a: Sequence[_Vec2], polyline_b: list[_Vec2]
-) -> list[_Vec2]:
+_T = TypeVar("_T")
+
+
+def align_closing_points(polyline_a: Sequence[_Vec2], polyline_b: list[_T]) -> list[_T]:
     """Set b[0] to b[-1] if a[0] == a[-1].
 
     :param polyline_a: polyline
@@ -47,7 +48,7 @@ def align_closing_points(
     polyline_b -> [D, E, F]
     polyline_c -> [D, E, F, D]
     """
-    polyline_c: list[_Vec2] = []
+    polyline_c: list[_T] = []
     points_b = it.cycle(polyline_b)
     for i, point_a in enumerate(polyline_a):
         if i == 0:

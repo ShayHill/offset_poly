@@ -110,6 +110,7 @@ repos:
     - --disable=no-member
     - --disable=import-error
     - --disable=no-name-in-module
+    - --disable=missing-return-doc
     - --load-plugins=pylint.extensions.docparams
     - --accept-no-param-doc=n
     - --accept-no-raise-doc=n
