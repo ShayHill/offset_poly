@@ -15,22 +15,6 @@ _Vec = tuple[float, float]
 _Seg = tuple[_Vec, _Vec]
 
 
-def _get_closest_point_on_seg(seg: _Seg, point: _Vec) -> _Vec:
-    """Find the closest point on a line segment to a point.
-
-    :param seg: line segment define by two points
-    :param point: point
-    :return: closest point on the line segment to the point
-    """
-    seg_vec = v2.vsub(seg[1], seg[0])
-    point_vec = v2.vsub(point, seg[0])
-    seg_norm = v2.get_norm(seg_vec)
-    seg_unit = v2.vscale(seg_vec, 1 / seg_norm)
-    proj_norm = v2.dot(point_vec, seg_unit)
-    proj_norm = max(0, min(seg_norm, proj_norm))
-    return v2.vadd(seg[0], v2.vscale(seg_unit, proj_norm))
-
-
 def _offset_seg(seg: _Seg, gap: float) -> _Seg:
     """Offset a line segment by a gap.
 
@@ -116,7 +100,7 @@ class GapCorner:
                 msg = "gaps must be equal for straight corners"
                 raise ValueError(msg)
             return seg_1[1]
-        xsect_ = v2.get_line_xsect(seg_1, seg_2)
+        xsect_ = v2.get_line_intersection(seg_1, seg_2)
         if xsect_ is None:
             msg = "segments are not parallel but no intersection found"
             raise RuntimeError(msg)
@@ -137,8 +121,8 @@ class GapCorner:
         if self._is_straight or self._is_degenerate:
             return self.pnt_b
         if self.angle > 0:
-            return _get_closest_point_on_seg(seg, self.xsect)
-        return _get_closest_point_on_seg(seg, self._xsect_right)
+            return v2.project_to_segment(seg, self.xsect)
+        return v2.project_to_segment(seg, self._xsect_right)
 
     @property
     def _cp_a(self) -> _Vec:

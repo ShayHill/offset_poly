@@ -9,11 +9,11 @@ readme = "README.md"
 
 # [tool.poetry.dependencies]
 requires-python = ">=3.9"
-dependencies = ["vec2_math ~= 0.1.0"]
+dependencies = ["vec2_math"]
 
 [project.optional-dependencies]
 dev = [
-    "pytest ~= 7.4.0",
+    "pytest",
     "commitizen",
     "pre-commit"
 ]
