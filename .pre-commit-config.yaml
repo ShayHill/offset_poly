@@ -1,5 +1,5 @@
 ci:
-  skip: [poetry-lock,pyright]
+  skip: [pyright]
 
 exclude: "tests"
 
@@ -41,16 +41,6 @@ repos:
     - id: pretty-format-json
     # - id: sort-simple-yaml
         # files: .pre-commit-config.yaml
-
-- repo: https://github.com/python-poetry/poetry
-  rev: 1.6.0
-  hooks:
-    - id: poetry-check
-    - id: poetry-lock
-    # - id: poetry-export
-    #   args:
-    #   - -f requirements.txt
-    #   - -o requirements.txt
 
 - repo: https://github.com/pre-commit/mirrors-mypy
   rev: v1.5.1

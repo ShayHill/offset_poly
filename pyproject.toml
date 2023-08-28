@@ -1,33 +1,36 @@
-[tool.poetry]
+[project]
 name = "offset-poly"
-version = "0.1.0"
-description = ""
-authors = ["Shay Hill <shay_public@hotmail.com>"]
+version = "0.2.0"
+description = "offset a polyline or polygon in 2D space"
+authors = [{ name = "Shay Hill", email = "shay_public@hotmail.com" }]
+license = {text = "MIT"}
 readme = "README.md"
-packages = [{include = "offset_poly"}]
+# packages = [{include = "offset_poly"}]
 
-[tool.poetry.dependencies]
-python = "^3.9"
-vec2-math = "^0.1.0"
+# [tool.poetry.dependencies]
+requires-python = ">=3.9"
+dependencies = ["vec2_math ~= 0.1.0"]
 
+[project.optional-dependencies]
+dev = [
+    "pytest ~= 7.4.0",
+    "commitizen",
+    "pre-commit"
+]
 
-[tool.poetry.group.dev.dependencies]
-pytest = "^7.4.0"
-pre-commit = "^3.3.3"
-commitizen = "^3.6.0"
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
 
 [tool.commitizen]
 name = "cz_conventional_commits"
-version = "0.1.0"
+version = "0.2.0"
 tag_format = "$version"
 major-version-zero = true
 version_files = [
     "pyproject.toml:^version"
 ]
 
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
 
 [tool.pyright]
 include = ["src"]
@@ -46,5 +49,5 @@ reportUninitializedInstanceVariable = true
 reportUnnecessaryTypeIgnoreComment = true
 reportUnusedCallResult = true
 
-venvPath = "C:\\Users\\shaya\\AppData\\Local\\pypoetry\\Cache\\virtualenvs"
-venv = "C:\\Users\\shaya\\AppData\\Local\\pypoetry\\Cache\\virtualenvs\\offset-poly-qv4vHTzb-py3.11"
+venvPath = "."
+venv = "./venv"
