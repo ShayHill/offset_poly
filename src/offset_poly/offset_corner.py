@@ -100,7 +100,8 @@ class GapCorner:
                 msg = "gaps must be equal for straight corners"
                 raise ValueError(msg)
             return seg_1[1]
-        xsect_ = v2.get_line_intersection(seg_1, seg_2)
+        line_1, line_2 = (v2.get_standard_form(x) for x in (seg_1, seg_2))
+        xsect_ = v2.get_line_intersection(line_1, line_2)
         if xsect_ is None:
             msg = "segments are not parallel but no intersection found"
             raise RuntimeError(msg)
