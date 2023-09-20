@@ -1,6 +1,6 @@
 [project]
 name = "offset-poly"
-version = "0.3.1"
+version = "0.3.2"
 description = "offset a polyline or polygon in 2D space"
 authors = [{ name = "Shay Hill", email = "shay_public@hotmail.com" }]
 license = {text = "MIT"}
@@ -24,7 +24,7 @@ build-backend = "setuptools.build_meta"
 
 [tool.commitizen]
 name = "cz_conventional_commits"
-version = "0.3.1"
+version = "0.3.2"
 tag_format = "$version"
 major-version-zero = true
 version_files = [
