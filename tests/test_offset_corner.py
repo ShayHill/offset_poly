@@ -5,10 +5,29 @@
 """
 import math
 import pytest
+import random
 
 from offset_poly.offset_corner import (
     gap_corner,
 )
+
+_ThreePoints = tuple[tuple[float, float], tuple[float, float], tuple[float, float]]
+
+
+# write a pytest fixture to generate three random, unique 2tuples
+@pytest.fixture
+def three_random_points() -> _ThreePoints:
+    """Return three random, unique 2tuples."""
+    pnts: set[tuple[float, float]] = set()
+    while len(pnts) < 3:
+        pnts.add((random.random(), random.random()))
+    return tuple(pnts)
+
+
+@pytest.fixture
+def random_gap() -> float:
+    """Return a random float gap between -5 and 5."""
+    return random.uniform(-5, 5)
 
 
 class TestMiterCorner:
@@ -58,3 +77,17 @@ class TestMiterCorner:
         nan_nan = gap_corner((0, 0), (0, 2), (0, 1), 1).xsect
         assert math.isnan(nan_nan[0])
         assert math.isnan(nan_nan[1])
+
+    @pytest.mark.parametrize("runs", range(100))
+    def test_pos_vs_neg_angle(
+        self,
+        runs: int,
+        three_random_points: _ThreePoints,
+        random_gap: float,
+    ):
+        """Ensure negative and positive angles give symmetric results."""
+        pnt_a, pnt_b, pnt_c = three_random_points
+        fwd = gap_corner(pnt_a, pnt_b, pnt_c, random_gap)
+        rev = gap_corner(pnt_c, pnt_b, pnt_a, -random_gap)
+        assert math.isclose(fwd.xsect[0], rev.xsect[0])
+        assert math.isclose(fwd.xsect[1], rev.xsect[1])
