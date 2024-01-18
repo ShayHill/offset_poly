@@ -1,3 +1,4 @@
+
 ci:
   skip: [pyright]
 
@@ -6,7 +7,7 @@ exclude: "tests"
 repos:
 
 - repo: https://github.com/pre-commit/pre-commit-hooks
-  rev: v4.4.0
+  rev: v4.5.0
   hooks:
     - id: check-added-large-files
     - id: check-ast
@@ -25,7 +26,7 @@ repos:
     - id: check-yaml
     - id: debug-statements
     - id: destroyed-symlinks
-    - id: detect-aws-credentials
+    # - id: detect-aws-credentials
     - id: detect-private-key
     - id: end-of-file-fixer
     - id: mixed-line-ending
@@ -39,16 +40,17 @@ repos:
       - --pytest-test-first
     - id: no-commit-to-branch
     - id: pretty-format-json
+      args: ['--autofix']
     # - id: sort-simple-yaml
         # files: .pre-commit-config.yaml
 
 - repo: https://github.com/pre-commit/mirrors-mypy
-  rev: v1.5.1
+  rev: v1.8.0
   hooks:
   - id: mypy
     name: mypy
     language: python
-    language_version: python 3.11
+    language_version: python 3.12
     types: [python]
     require_serial: true
     verbose: true
@@ -59,20 +61,20 @@ repos:
     # files: ^(src/|tests/)
 
 - repo: https://github.com/PyCQA/isort
-  rev: 5.12.0
+  rev: 5.13.2
   hooks:
   - id: isort
-    args: ["--profile", "black", "--filter-files", "--combine-as"]
+    args: ["--profile", "black", "--filter-files", "--combine-as", "honor--noqa"]
 
 - repo: https://github.com/psf/black
-  rev: 23.7.0
+  rev: 23.12.1
   hooks:
   - id: black
     language_version: python3.9
     args: ["--skip-magic-trailing-comma"]
 
 - repo: https://github.com/asottile/pyupgrade
-  rev: v3.10.1
+  rev: v3.15.0
   hooks:
   - args:
     - --py39-plus
@@ -88,24 +90,24 @@ repos:
 #   hooks:
 #   - id: commitizen
 
-- repo: https://github.com/pre-commit/mirrors-pylint
-  rev: v3.0.0a5
-  hooks:
-  - id: pylint
-    exclude: "tests"
-    name: pylint
-    args:
-    - --good-names=i,j,_,f
-    - --disable=protected-access
-    - --disable=no-member
-    - --disable=import-error
-    - --disable=no-name-in-module
-    - --disable=missing-return-doc
-    - --load-plugins=pylint.extensions.docparams
-    - --accept-no-param-doc=n
-    - --accept-no-raise-doc=n
-    - --accept-no-return-doc=n
-    - --accept-no-yields-doc=n
+# pylint still broken in python 3.12
+# - repo: https://github.com/pre-commit/mirrors-pylint
+#   rev: v3.0.0a5
+#   hooks:
+#   - id: pylint
+#     exclude: "tests"
+#     name: pylint
+#     args:
+#     - --good-names=i,j,_,f
+#     - --disable=protected-access
+#     - --disable=no-member
+#     - --disable=import-error
+#     - --disable=no-name-in-module
+#     - --load-plugins=pylint.extensions.docparams
+#     - --accept-no-param-doc=n
+#     - --accept-no-raise-doc=n
+#     - --accept-no-return-doc=n
+#     - --accept-no-yields-doc=n
 
 - repo: https://github.com/charliermarsh/ruff-pre-commit
   # ignores
@@ -117,24 +119,26 @@ repos:
   # COM812 Trailing comma missing
   # D203 1 blank line required before class docstring
   # D213 multi line summary second line
-  # I001 Inport block is un-sorted or un-formatted
+  # D400 first line should end with a period
+  # I001 Import block is un-sorted or un-formatted
   # ISC003 Explicitly concatenated string should be implicitly concatenated
   # N802 Function name should be lowercase
   # N806 Variable in function should be lowercase
+  # PERF401 Use a list comprehension to create a transformed list
   # PGH003 Use specific rule codes when ignoring type issues
   # PLR0913 Too many arguments to function call
-  # PTH108 os.unlink should be replaced by .unlink()
-  rev: 'v0.0.285'
+  rev: 'v0.1.13'
   hooks:
     - id: ruff
       exclude: "tests"
       args:
+      - --target-version=py311
       - --select=ALL
-      - --ignore=ANN101,ANN102,ANN201,ANN202,B905,COM812,D203,D213,I001,ISC003,N802,N806,PGH003,PLR0913,PTH108
-      - --fix
+      - --ignore=ANN101,ANN102,ANN201,ANN202,B905,COM812,D203,D213,D400,I001,ISC003,N802,N806,PERF401,PGH003,PLR0913
+      # - --fix
 
 # reads pyproject.toml for additional config
 - repo: https://github.com/RobertCraigie/pyright-python
-  rev: v1.1.324
+  rev: v1.1.347
   hooks:
     - id: pyright

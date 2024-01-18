@@ -1,35 +1,35 @@
+
 [project]
-name = "offset-poly"
+name = "offset_poly"
 version = "0.3.2"
-description = "offset a polyline or polygon in 2D space"
+description = "offset a polyline or polygon in 2d space"
 authors = [{ name = "Shay Hill", email = "shay_public@hotmail.com" }]
 license = {text = "MIT"}
 readme = "README.md"
-# packages = [{include = "offset_poly"}]
-
-# [tool.poetry.dependencies]
 requires-python = ">=3.9"
 dependencies = ["vec2_math"]
 
 [project.optional-dependencies]
-dev = [
-    "pytest",
-    "commitizen",
-    "pre-commit"
-]
+dev = ["commitizen", "pre-commit", "pytest", "tox"]
 
 [build-system]
 requires = ["setuptools", "setuptools-scm"]
 build-backend = "setuptools.build_meta"
+
+
 
 [tool.commitizen]
 name = "cz_conventional_commits"
 version = "0.3.2"
 tag_format = "$version"
 major-version-zero = true
-version_files = [
-    "pyproject.toml:^version"
-]
+version_files = ["pyproject.toml:^version"]
+
+
+
+[tool.isort]
+profile = "black"
+
 
 
 [tool.pyright]
