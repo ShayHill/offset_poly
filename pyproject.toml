@@ -1,7 +1,7 @@
 
 [project]
 name = "offset_poly"
-version = "0.3.2"
+version = "0.3.3"
 description = "offset a polyline or polygon in 2d space"
 authors = [{ name = "Shay Hill", email = "shay_public@hotmail.com" }]
 license = {text = "MIT"}
@@ -20,7 +20,7 @@ build-backend = "setuptools.build_meta"
 
 [tool.commitizen]
 name = "cz_conventional_commits"
-version = "0.3.2"
+version = "0.3.3"
 tag_format = "$version"
 major-version-zero = true
 version_files = ["pyproject.toml:^version"]
