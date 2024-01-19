@@ -7,9 +7,9 @@ name: pypi project
 
 on:
   push:
-    branches: [dev, master]
+    branches: [dev, main]
   pull_request:
-    branches: [master]
+    branches: [main]
 
 jobs:
   tests:
