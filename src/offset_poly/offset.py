@@ -54,13 +54,13 @@ def _anchor_polyline(polyline: Sequence[_Vec2]) -> list[_Vec2]:
     :param polyline: polyline
     :return: polyline with extended edges at the beginning and end
 
-        A — B
+        A ΓÇö B
             |
             C
 
     becomes
 
-    A`— A — B
+    A`ΓÇö A ΓÇö B
             |
             C
             |
@@ -94,7 +94,6 @@ def offset_poly_per_vert(
     exactly enough for gap pairs for the segments that are retained.
     """
     points = remove_coincident_adjacent_points(polyline)
-    gaps = it.cycle(vert_offsets or [(0, 0)])
 
     if poly_type == PolyType.POLYGON:
         if len(points) < _MIN_PTS_FOR_POLYGON:
@@ -111,8 +110,17 @@ def offset_poly_per_vert(
         raise ValueError(msg)
 
     offset_points: list[GapCorner] = []
-    for pnt_a, pnt_b, pnt_c in zip(points, points[1:], points[2:]):
+    abcs = list(zip(points, points[1:], points[2:]))
+    gaps = it.cycle(vert_offsets or [(0, 0)])
+
+    for i, (pnt_a, pnt_b, pnt_c) in enumerate(abcs):
         gap_1, gap_2 = next(gaps)
+        if poly_type == PolyType.POLYLINE and i == 0:
+            offset_points.append(gap_corner(pnt_a, pnt_b, pnt_c, gap_2))
+            continue
+        if poly_type == PolyType.POLYLINE and i == len(abcs) - 1:
+            offset_points.append(gap_corner(pnt_a, pnt_b, pnt_c, gap_1))
+            continue
         offset_points.append(gap_corner(pnt_a, pnt_b, pnt_c, gap_1, gap_2))
 
     return align_closing_points(polyline, offset_points)
@@ -132,8 +140,8 @@ def offset_poly_per_edge(
     a different amount. You will end up with a ValueError in gap_corner
     if you try to offset consecutive, parallel edges by different amounts.
     """
-    prev_edges, next_edges = it.tee(edge_offsets, 2)
-    next_edges = it.islice(it.cycle(next_edges), 1, None)
+    next_edges = [x for x, _ in zip(edge_offsets, polyline)]
+    prev_edges = [next_edges[-1], *next_edges[:-1]]
     return offset_poly_per_vert(polyline, zip(prev_edges, next_edges), poly_type)
 
 

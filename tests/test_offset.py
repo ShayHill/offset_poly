@@ -5,7 +5,12 @@
 """
 import math
 
-from offset_poly.offset import offset_polygon, offset_polyline
+from offset_poly.offset import (
+    offset_polygon,
+    offset_polyline,
+    offset_poly_per_edge,
+    PolyType,
+)
 
 
 def _is_vec_close(vec_a: tuple[float, float], vec_b: tuple[float, float]) -> bool:
@@ -291,3 +296,45 @@ class TestOffsetPolygon:
             (1, 1),
             (1, 1),
         ]
+
+
+def _is_xy_close(a: tuple[float, float], b: tuple[float, float]):
+    return math.isclose(a[0], b[0]) and math.isclose(a[1], b[1])
+
+
+def _all_xy_close(xys_a: list[tuple[float, float]], xys_b: list[tuple[float, float]]):
+    if len(xys_a) != len(xys_b):
+        return False
+    return all([_is_xy_close(a, b) for a, b in zip(xys_a, xys_b)])
+
+
+class TestOffsetPolyPerEdge:
+    def test_first_polygon_offset_is_different(self):
+        """First offset moves the edge polygon[0] -> polygon[1]."""
+        polygon = [(0, 0), (5, 0), (5, 5), (0, 5)]
+        offsets = [-2, -1, -1, -1]
+        expect: list[tuple[float, float]] = [(-1, -2), (6, -2), (6, 6), (-1, 6)]
+        result = [
+            x.xsect for x in offset_poly_per_edge(polygon, offsets, PolyType.POLYGON)
+        ]
+        assert _all_xy_close(result, expect)
+
+    def test_last_polygon_offset_is_different(self):
+        """Last offset moves the edge polygon[-1] -> polygon[0]."""
+        polygon = [(0, 0), (5, 0), (5, 5), (0, 5)]
+        offsets = [-1, -1, -1, -2]
+        expect: list[tuple[float, float]] = [(-2, -1), (6, -1), (6, 6), (-2, 6)]
+        result = [
+            x.xsect for x in offset_poly_per_edge(polygon, offsets, PolyType.POLYGON)
+        ]
+        assert _all_xy_close(result, expect)
+
+    def test_polyline(self):
+        """Polyline is treated as open."""
+        polyline = [(0, 0), (5, 0), (5, 5), (0, 5)]
+        offsets = [-1, -2, -3]
+        expect: list[tuple[float, float]] = [(0, -1), (7, -1), (7, 8), (0, 8)] 
+        result = [
+            x.xsect for x in offset_poly_per_edge(polyline, offsets, PolyType.POLYLINE)
+        ]
+        assert _all_xy_close(result, expect)
