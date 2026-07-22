@@ -7,12 +7,13 @@
 from __future__ import annotations
 
 import itertools as it
+from collections.abc import Iterable
 from typing import TYPE_CHECKING, TypeVar
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
-_Vec2 = tuple[float, float]
+_Vec2 = tuple[float, float] | Iterable[float]
 
 
 def remove_coincident_adjacent_points(polyline: Sequence[_Vec2]) -> list[_Vec2]:

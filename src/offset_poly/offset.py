@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import enum
 import itertools as it
+from collections.abc import Iterable
 from typing import TYPE_CHECKING
 
 from vec2_math import vadd, vsub
@@ -19,9 +20,9 @@ from offset_poly.prepare_poly import (
 )
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Sequence
+    from collections.abc import Sequence
 
-_Vec2 = tuple[float, float]
+_Vec2 = tuple[float, float] | Iterable[float]
 
 _MIN_PTS_FOR_POLYGON = 3
 _MIN_PTS_FOR_POLYLINE = 2

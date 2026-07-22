@@ -6,27 +6,29 @@
 
 from __future__ import annotations
 
-import dataclasses
 import math
+from collections.abc import Iterable
 
 import vec2_math as v2
 
-_Vec = tuple[float, float]
-_Seg = tuple[_Vec, _Vec]
+_Vec2 = tuple[float, float] | Iterable[float]
+_Seg = tuple[_Vec2, _Vec2] | Iterable[Iterable[float]]
 
 
-def _offset_seg(seg: _Seg, gap: float) -> _Seg:
+def _offset_seg(
+    seg: _Seg, gap: float
+) -> tuple[tuple[float, float], tuple[float, float]]:
     """Offset a line segment by a gap.
 
     :param seg: line segment
     :param gap: gap to offset by
     :return: line segment moved gap distance to the left
     """
-    vec_left = v2.set_norm(v2.qrotate(v2.vsub(seg[1], seg[0]), 1), gap)
-    return v2.vadd(seg[0], vec_left), v2.vadd(seg[1], vec_left)
+    vec_a, vec_b = seg
+    vec_left = v2.set_norm(v2.qrotate(v2.vsub(vec_b, vec_a), 1), gap)
+    return v2.vadd(vec_a, vec_left), v2.vadd(vec_b, vec_left)
 
 
-@dataclasses.dataclass
 class GapCorner:
     """Offset a corner defined by three points.
 
@@ -42,36 +44,44 @@ class GapCorner:
     Calculate quadratic Bezier control points for a rounded corner at abc
     """
 
-    pnt_a: _Vec
-    pnt_b: _Vec
-    pnt_c: _Vec
-    gap_1: float
-    gap_2: float
-    angle: float = dataclasses.field(init=False)
-
-    def __post_init__(self) -> None:
-        """Calculate the angle at b."""
+    def __init__(
+        self,
+        pnt_a: _Vec2,
+        pnt_b: _Vec2,
+        pnt_c: _Vec2,
+        gap_1: float,
+        gap_2: float | None,
+    ) -> None:
+        """Initialize a GapCorner instance."""
+        x, y = pnt_a
+        self.pnt_a = x, y
+        x, y = pnt_b
+        self.pnt_b = x, y
+        x, y = pnt_c
+        self.pnt_c = x, y
+        self.gap_1 = gap_1
+        self.gap_2 = gap_2 if gap_2 is not None else gap_1
         vec_ab = v2.vsub(self.pnt_b, self.pnt_a)
         vec_bc = v2.vsub(self.pnt_c, self.pnt_b)
         self.angle = v2.get_signed_angle(vec_ab, vec_bc)
 
     @property
-    def _ab_left(self) -> _Seg:
+    def _ab_left(self) -> tuple[tuple[float, float], tuple[float, float]]:
         """Return segment ab offset to the left."""
         return _offset_seg((self.pnt_a, self.pnt_b), self.gap_1)
 
     @property
-    def _ab_right(self) -> _Seg:
+    def _ab_right(self) -> tuple[tuple[float, float], tuple[float, float]]:
         """Return segment ab offset to the right."""
         return _offset_seg((self.pnt_a, self.pnt_b), -self.gap_1)
 
     @property
-    def _bc_left(self) -> _Seg:
+    def _bc_left(self) -> tuple[tuple[float, float], tuple[float, float]]:
         """Return segment bc offset to the left."""
         return _offset_seg((self.pnt_b, self.pnt_c), self.gap_2 or 0)
 
     @property
-    def _bc_right(self) -> _Seg:
+    def _bc_right(self) -> tuple[tuple[float, float], tuple[float, float]]:
         """Return segment bc offset to the right."""
         return _offset_seg((self.pnt_b, self.pnt_c), -self.gap_2 or 0)
 
@@ -85,7 +95,7 @@ class GapCorner:
         """Return True if corner forms a zero-degree angle."""
         return math.isclose(self.angle % (math.pi * 2), math.pi, abs_tol=1e-6)
 
-    def _get_xsect(self, seg_1: _Seg, seg_2: _Seg) -> _Vec:
+    def _get_xsect(self, seg_1: _Seg, seg_2: _Seg) -> tuple[float, float]:
         """Return the intersection of two offset segments.
 
         :raise ValueError: if segments do not intersect (straight line with two
@@ -99,7 +109,8 @@ class GapCorner:
             if self.gap_1 != self.gap_2:
                 msg = "gaps must be equal for straight corners"
                 raise ValueError(msg)
-            return seg_1[1]
+            _, (x, y) = seg_1
+            return (x, y)
         line_1, line_2 = (v2.get_standard_form(x) for x in (seg_1, seg_2))
         xsect_ = v2.get_line_intersection(line_1, line_2)
         if xsect_ is None:
@@ -108,16 +119,16 @@ class GapCorner:
         return xsect_
 
     @property
-    def xsect(self) -> _Vec:
+    def xsect(self) -> tuple[float, float]:
         """The intersection of left-offset segments ab and bc."""
         return self._get_xsect(self._ab_left, self._bc_left)
 
     @property
-    def _xsect_right(self) -> _Vec:
+    def _xsect_right(self) -> tuple[float, float]:
         """The intersection of right-offset segments ab and bc."""
         return self._get_xsect(self._ab_right, self._bc_right)
 
-    def _get_cp(self, seg: _Seg) -> _Vec:
+    def _get_cp(self, seg: _Seg) -> tuple[float, float]:
         """Return closest point on seg to xsect."""
         if self._is_straight or self._is_degenerate:
             return self.pnt_b
@@ -126,23 +137,25 @@ class GapCorner:
         return v2.project_to_segment(seg, self._xsect_right)
 
     @property
-    def _cp_a(self) -> _Vec:
+    def _cp_a(self) -> tuple[float, float]:
         """Return closest point on ab to xsect."""
         return self._get_cp((self.pnt_a, self.pnt_b))
 
     @property
-    def _cp_c(self) -> _Vec:
+    def _cp_c(self) -> tuple[float, float]:
         """Return closest point on bc to xsect."""
         return self._get_cp((self.pnt_b, self.pnt_c))
 
     @property
-    def cpts(self) -> tuple[_Vec, _Vec, _Vec]:
+    def cpts(
+        self,
+    ) -> tuple[tuple[float, float], tuple[float, float], tuple[float, float]]:
         """Return control points for a Bezier curve at the corner."""
         return self._cp_a, self.pnt_b, self._cp_c
 
 
 def gap_corner(
-    pnt_a: _Vec, pnt_b: _Vec, pnt_c: _Vec, gap_1: float, gap_2: float | None = None
+    pnt_a: _Vec2, pnt_b: _Vec2, pnt_c: _Vec2, gap_1: float, gap_2: float | None = None
 ) -> GapCorner:
     """Offset a corner (to the left) defined by three points.
 
