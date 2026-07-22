@@ -1,21 +1,37 @@
-
 [project]
-name = "offset_poly"
+name = "offset-poly"
 version = "0.3.3"
 description = "offset a polyline or polygon in 2d space"
-authors = [{ name = "Shay Hill", email = "shay_public@hotmail.com" }]
-license = {text = "MIT"}
 readme = "README.md"
-requires-python = ">=3.9"
+license = "MIT"
+authors = [
+    { name = "Shay Hill", email = "shay_public@hotmail.com" }
+]
+requires-python = ">=3.10"
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Typing :: Typed",
+]
 dependencies = ["vec2_math"]
 
-[project.optional-dependencies]
-dev = ["commitizen", "pre-commit", "pytest", "tox"]
-
 [build-system]
-requires = ["setuptools", "setuptools-scm"]
-build-backend = "setuptools.build_meta"
+requires = ["uv_build>=0.11.25,<0.12.0"]
+build-backend = "uv_build"
 
+[dependency-groups]
+dev = [
+    "commitizen>=4.16.5",
+    "pre-commit>=4.6.1",
+    "pytest>=9.1.1",
+]
 
 
 [tool.commitizen]
@@ -26,28 +42,71 @@ major-version-zero = true
 version_files = ["pyproject.toml:^version"]
 
 
-
 [tool.isort]
 profile = "black"
 
 
+[tool.pytest.ini_options]
+addopts = "--doctest-modules"
+pythonpath = "tests"
+testpaths = ["tests"]
+log_cli = true
+
+
+[tool.ruff]
+target-version = "py310"
+exclude = ["typings", ".venv"]
+[tool.ruff.lint.pydocstyle]
+convention = "pep257"
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*.py" = [
+    "S101",
+    "D",
+    "F401",
+] # Ignore assertions, docstrings, unused imports in test files
+
+[tool.ruff.format]
+docstring-code-line-length = 88
+skip-magic-trailing-comma = true
+
+[tool.ruff.lint.isort]
+# keep isort consistent with format.skip-magic-trailing-comma
+split-on-trailing-comma = false
+
+[tool.ruff.lint]
+select = ["ALL"]
+# only auto-fix __all__ sorting (RUF022) and import sorting (I)
+fixable = ["RUF022", "I"]
+ignore = [
+    "COM812",  # trailing comma missing (does not agree with Black)
+    "D203",    # 1 blank line before class docstring (incompatible with D211)
+    "D213",    # multi-line summary second line (incompatible with D212)
+    "ISC003",  # explicitly concatenated string should be implicit
+    "FLY",     # Use f-string instead of ...
+    "S311",    # Standard pseudo-random generators are not suitable for security/cryptographic purposes
+    "S301",    # don't use pickle
+]
+
 
 [tool.pyright]
-include = ["src"]
+include = ["src", "tests"]
 exclude = ["**/__pycache__.py"]
+ignore = ["typings", ".venv"]
 
-pythonVersion = "3.9"
-pythonPlatform = "Any"
+pythonVersion = "3.10"
+pythonPlatform = "All"
 
 typeCheckingMode = "strict"
-reportShadowedImports = true
 reportCallInDefaultInitializer = true
 reportImplicitStringConcatenation = true
-# reportMissingSuperCall = true
 reportPropertyTypeMismatch = true
 reportUninitializedInstanceVariable = true
 reportUnnecessaryTypeIgnoreComment = true
 reportUnusedCallResult = true
 
 venvPath = "."
-venv = "./venv"
+venv = "./.venv"
+
+[[tool.pyright.executionEnvironments]]
+root = "tests"

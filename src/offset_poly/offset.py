@@ -95,22 +95,33 @@ def offset_poly_per_vert(
     """
     points = remove_coincident_adjacent_points(polyline)
 
-    if poly_type == PolyType.POLYGON:
+    def handle_polygon(points: list[_Vec2]) -> list[_Vec2]:
+        """Wrap points where poly_tyoe is a polygon."""
         if len(points) < _MIN_PTS_FOR_POLYGON:
             msg = "at least three unique points required for a polygon"
             raise ValueError(msg)
-        points = _wrap_polygon(points)
-    elif poly_type == PolyType.POLYLINE:
+        return _wrap_polygon(points)
+
+    def handle_polyline(points: list[_Vec2]) -> list[_Vec2]:
+        """Anchor points where poly_type is a polyline."""
         if len(points) < _MIN_PTS_FOR_POLYLINE:
             msg = "at least two unique points required for a polyline"
             raise ValueError(msg)
-        points = _anchor_polyline(points)
-    else:
-        msg = "poly_type must be PolyType.POLYGON or PolyType.POLYLINE"
+        return _anchor_polyline(points)
+
+    poly_type2handler = {
+        PolyType.POLYGON: handle_polygon,
+        PolyType.POLYLINE: handle_polyline,
+    }
+
+    poly_type_handler = poly_type2handler.get(poly_type)
+    if poly_type_handler is None:
+        msg = "poly_type must be PolyType.POLYGON or PolyType.POLYLINE, not {poly_type}"
         raise ValueError(msg)
+    points = poly_type_handler(points)
 
     offset_points: list[GapCorner] = []
-    abcs = list(zip(points, points[1:], points[2:]))
+    abcs = list(zip(points, points[1:], points[2:], strict=False))
     gaps = it.cycle(vert_offsets or [(0, 0)])
 
     for i, (pnt_a, pnt_b, pnt_c) in enumerate(abcs):
@@ -140,9 +151,11 @@ def offset_poly_per_edge(
     a different amount. You will end up with a ValueError in gap_corner
     if you try to offset consecutive, parallel edges by different amounts.
     """
-    next_edges = [x for x, _ in zip(edge_offsets, polyline)]
+    next_edges = [x for x, _ in zip(edge_offsets, polyline, strict=False)]
     prev_edges = [next_edges[-1], *next_edges[:-1]]
-    return offset_poly_per_vert(polyline, zip(prev_edges, next_edges), poly_type)
+    return offset_poly_per_vert(
+        polyline, zip(prev_edges, next_edges, strict=True), poly_type
+    )
 
 
 def offset_polyline(polyline: Sequence[_Vec2], offset: float) -> list[GapCorner]:
