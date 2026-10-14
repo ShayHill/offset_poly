@@ -5,6 +5,7 @@
 """
 
 from offset_poly.offset import (
+    PolyType,
     offset_poly_per_edge,
     offset_poly_per_vert,
     offset_polygon,
@@ -13,6 +14,7 @@ from offset_poly.offset import (
 from offset_poly.offset_corner import gap_corner
 
 __all__ = [
+    "PolyType",
     "gap_corner",
     "offset_poly_per_edge",
     "offset_poly_per_vert",
