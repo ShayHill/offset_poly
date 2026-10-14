@@ -41,12 +41,12 @@ repos:
         # files: .pre-commit-config.yaml
 
 - repo: https://github.com/pre-commit/mirrors-mypy
-  rev: v2.3.0
+  rev: v2.4.0
   hooks:
   - id: mypy
     name: mypy
     language: python
-    language_version: python 3.10
+    language_version: python 3.11
     types: [python]
     require_serial: true
     verbose: true
@@ -57,10 +57,10 @@ repos:
     # files: ^(src/|tests/)
 
 - repo: https://github.com/asottile/pyupgrade
-  rev: v3.21.2
+  rev: v3.22.0
   hooks:
   - args:
-    - --py310-plus
+    - --py311-plus
     id: pyupgrade
 
 - repo: https://github.com/Lucas-C/pre-commit-hooks
@@ -70,7 +70,7 @@ repos:
 
 # ruff config (select/ignore/fixable/target-version) lives in pyproject.toml
 - repo: https://github.com/charliermarsh/ruff-pre-commit
-  rev: 'v0.15.22'
+  rev: 'v0.17.0'
   hooks:
     - id: ruff
       args: ["--fix"]
@@ -79,6 +79,6 @@ repos:
 
 # basedpyright config (select/ignore/fixable/target-version) lives in pyproject.toml
 -   repo: https://github.com/DetachHead/basedpyright-pre-commit-mirror
-    rev: 1.39.9
+    rev: 1.40.2
     hooks:
     -   id: basedpyright
